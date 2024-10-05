@@ -1,12 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Web;
 
 namespace project_esig.Models
 {
+    [Table("Pessoa", Schema = "C##KAIO")]
     public class Pessoa
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public string Nome { get; set; }
         public string Cidade { get; set; }
@@ -16,7 +21,7 @@ namespace project_esig.Models
         public string Pais { get; set; }
         public string Usuario { get; set; }
         public string Telefone { get; set; }
-        public DateTime Data_Nascimento { get; set; }
+        public DateTime? Data_Nascimento { get; set; }
         public int CargoId { get; set; }
     }
 }

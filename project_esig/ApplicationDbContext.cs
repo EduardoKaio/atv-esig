@@ -9,7 +9,7 @@ namespace project_esig
 {
     public class ApplicationDbContext : DbContext
     {
-        public ApplicationDbContext() : base("name=DbConnection") // substitua pelo nome da sua connection string
+        public ApplicationDbContext() : base("name=DbConnection")
         {
         }
 

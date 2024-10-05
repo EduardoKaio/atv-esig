@@ -9,7 +9,7 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
 </head>
 <body>
-    <form id="form1" runat="server">
+    <form id="form1" runat="server" >
         <div class="container mt-5">
             <h2 class="mb-4">Edição de Pessoa</h2>
             
@@ -85,15 +85,14 @@
                 </asp:DropDownList>
             </div>
 
-            <!-- Botões -->
-            <div class="form-group">
-                <asp:Button ID="btnSalvar" runat="server" Text="Salvar" CssClass="btn btn-primary" OnClick="btnSalvar_Click" />
-                <asp:Button ID="btnCancelar" runat="server" Text="Cancelar" CssClass="btn btn-secondary" OnClick="btnCancelar_Click" />
+            <div class="form-group d-flex justify-content-end">
+                <asp:Button ID="btnCancelar" runat="server" Text="Cancelar" CssClass="btn btn-secondary mr-2" OnClick="btnCancelar_Click" />
+                <asp:Button ID="btnSalvar" runat="server" Text="Salvar" CssClass="btn btn-primary " OnClick="btnSalvar_Click" />
+               
             </div>
         </div>
     </form>
 
-    <!-- Importando o Bootstrap JS (opcional, para funcionalidades como modais) -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

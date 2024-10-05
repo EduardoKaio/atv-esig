@@ -16,13 +16,13 @@ namespace project_esig
             int novoId = ObterProximoId(connectionString);
             using (OracleConnection connection = new OracleConnection(connectionString))
             {
-                // Certifique-se de que a instrução VALUES tem a mesma quantidade de valores que colunas.
+               
                 string query = "INSERT INTO \"Pessoa\" (\"Id\", \"Nome\", \"Cidade\", \"Email\", \"CEP\", \"Endereco\", \"Pais\", \"Usuario\", \"Telefone\", \"Data_Nascimento\", \"CargoId\") " +
                                "VALUES (:Id, :Nome, :Cidade, :Email, :CEP, :Endereco, :Pais, :Usuario, :Telefone, :Data_Nascimento, :CargoId)";
 
                 using (OracleCommand command = new OracleCommand(query, connection))
                 {
-                    // Adicione o parâmetro Id corretamente
+                   
                     command.Parameters.Add(new OracleParameter("Id", novoId));
                     command.Parameters.Add(new OracleParameter("Nome", txtNome.Text));
                     command.Parameters.Add(new OracleParameter("Cidade", txtCidade.Text));
@@ -34,10 +34,9 @@ namespace project_esig
                     command.Parameters.Add(new OracleParameter("Telefone", txtTelefone.Text));
 
                     // Formatação de data
-                    string dataNascimento = Convert.ToDateTime(txtDataNascimento.Text).ToString("yyyy-MM-dd");
-                    command.Parameters.Add(new OracleParameter("Data_Nascimento", dataNascimento));
+                    DateTime dataNascimento = DateTime.ParseExact(txtDataNascimento.Text, "yyyy-MM-dd", null);
+                    command.Parameters.Add(new OracleParameter("dataNascimento", dataNascimento));
 
-                    // Corrigido o nome do parâmetro para manter a consistência
                     command.Parameters.Add(new OracleParameter("CargoId", Convert.ToInt32(ddlCargoId.SelectedValue)));
 
                     connection.Open();
@@ -45,13 +44,12 @@ namespace project_esig
                 }
             }
 
-            // Redirecionar após a criação
             Response.Redirect("PessoaListagem.aspx?mensagem=newPessoa");
         }
 
         private int ObterProximoId(string connectionString)
         {
-            int proximoId = 1; // Valor padrão caso não exista nenhuma entrada
+            int proximoId = 1; //caso não exista nenhuma entrada
 
             using (OracleConnection connection = new OracleConnection(connectionString))
             {

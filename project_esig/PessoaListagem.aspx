@@ -1,4 +1,5 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="PessoaListagem.aspx.cs" Inherits="project_esig.PessoaListagem" %>
+
 <%@ Import Namespace="System.Data" %>
 <%@ Import Namespace="Oracle.ManagedDataAccess.Client" %>
 
@@ -34,9 +35,9 @@
             <Columns>
                 <asp:BoundField DataField="Id" HeaderText="Id" />
                 <asp:BoundField DataField="Nome" HeaderText="Nome" />
-                <asp:BoundField DataField="Cidade" HeaderText="Cidade" />
                 <asp:BoundField DataField="Email" HeaderText="Email" />
-                 <asp:BoundField DataField="Telefone" HeaderText="Telefone" />
+                <asp:BoundField DataField="Telefone" HeaderText="Telefone" />
+                <asp:BoundField DataField="Cargo" HeaderText="Cargo" />
                 <asp:TemplateField>
                  <ItemTemplate>
                      <div class="d-flex justify-content-evenly">
@@ -46,9 +47,9 @@
                             </a>
                          </div>
                          <div>
-                            <a href='PessoaExcluir.aspx?id=<%# Eval("Id") %>' class="btn btn-danger btn-circle" onclick="return confirm('Tem certeza que deseja excluir?');">
-                            <i class="fas fa-trash"></i> <!-- Ícone de lixeira (excluir) -->
-                            </a>
+                            <asp:LinkButton ID="lnkExcluir" runat="server" CommandName="Excluir" CommandArgument='<%# Eval("Id") %>' OnClientClick="return confirm('Tem certeza que deseja excluir?');" CssClass="btn btn-danger btn-circle">
+                            <i class="fas fa-trash"></i>
+                        </asp:LinkButton>
                          </div>
                      </div>
                     </ItemTemplate>

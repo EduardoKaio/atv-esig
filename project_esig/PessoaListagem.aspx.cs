@@ -50,7 +50,11 @@ namespace project_esig
 
             using (OracleConnection connection = new OracleConnection(connectionString))
             {
-                string query = "SELECT \"Id\", \"Nome\", \"Cidade\", \"Email\", \"Telefone\" FROM \"Pessoa\" ORDER BY \"Id\" ASC";
+                string query = @"
+                SELECT p.""Id"", p.""Nome"", p.""Email"", p.""Telefone"", c.""Nome"" AS ""Cargo""
+                FROM ""Pessoa"" p
+                JOIN ""Cargo"" c ON p.""CargoId"" = c.""Id""
+                ORDER BY p.""Id"" ASC";
 
                 OracleCommand command = new OracleCommand(query, connection);
                 connection.Open();
@@ -60,11 +64,11 @@ namespace project_esig
                 adapter.Fill(dt);
 
                 TotalRows = dt.Rows.Count;
-                // Paginação manual
+               
                 int currentPage = GridViewPessoas.PageIndex + 1; // PageIndex começa em 0
                 int pageSize = GridViewPessoas.PageSize;
 
-                // Criar uma nova DataTable apenas com os itens da página atual
+               
                 DataTable paginatedTable = dt.Clone();
                 int startRow = (currentPage - 1) * pageSize;
                 int endRow = Math.Min(startRow + pageSize, TotalRows);
@@ -90,7 +94,7 @@ namespace project_esig
             dt.Columns.Add("Text");
             dt.Columns.Add("CssClass");
 
-            // Adicionar sempre a primeira página
+          
             DataRow firstPage = dt.NewRow();
             firstPage["PageNumber"] = 1;
             firstPage["Text"] = "1";
@@ -102,11 +106,11 @@ namespace project_esig
             {
                 DataRow dots = dt.NewRow();
                 dots["Text"] = "...";
-                dots["CssClass"] = "page-item disabled"; // Não clicável
+                dots["CssClass"] = "page-item disabled"; 
                 dt.Rows.Add(dots);
             }
 
-            // Páginas adjacentes à atual (2 anteriores e 2 posteriores)
+            // Páginas adjacentes à atual (1 anterior e 1 posterior)
             for (int i = Math.Max(2, currentPage - 1); i <= Math.Min(totalPages - 1, currentPage + 1); i++)
             {
                 DataRow page = dt.NewRow();
@@ -121,7 +125,7 @@ namespace project_esig
             {
                 DataRow dots = dt.NewRow();
                 dots["Text"] = "...";
-                dots["CssClass"] = "page-item disabled"; // Não clicável
+                dots["CssClass"] = "page-item disabled"; 
                 dt.Rows.Add(dots);
             }
 
@@ -132,7 +136,7 @@ namespace project_esig
             lastPage["CssClass"] = (currentPage == totalPages) ? "page-item active" : "page-item";
             dt.Rows.Add(lastPage);
 
-            // Definir o `Repeater` com o DataTable
+
             PagerRepeater.DataSource = dt;
             PagerRepeater.DataBind();
 
@@ -178,7 +182,7 @@ namespace project_esig
                     Response.Redirect($"PessoaEditar.aspx?id={id}");
                 }
             }
-            else if (e.CommandName == "Excluir")
+            if (e.CommandName == "Excluir")
             {
                 if (e.CommandArgument != null)
                 {
@@ -186,6 +190,7 @@ namespace project_esig
                     ExcluirPessoa(id);
                 }
             }
+
         }
 
         private void ExcluirPessoa(int id)
@@ -218,7 +223,7 @@ namespace project_esig
         }
         protected void btnNovaPessoa_Click(object sender, EventArgs e)
         {
-            Response.Redirect("PessoaCreate.aspx"); // Redireciona para a página de criação
+            Response.Redirect("PessoaCreate.aspx"); 
         }
     }
 }

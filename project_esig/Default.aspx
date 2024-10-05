@@ -13,7 +13,7 @@
     <form runat="server">
         <div class="container mt-5">
             <div class="jumbotron text-center">
-                <img width="30%" src="./esig-logo.png" />
+                <img width="30%" src="./esig-group.png" />
                 <h1 class="display-4">Atividade Técnica - ESIG</h1>
                 <p class="lead">Bem-vindo à aplicação para gerenciamento de Pessoas e Salários.</p>
                 <hr class="my-4" />

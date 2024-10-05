@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Web.UI.WebControls;
 using Oracle.ManagedDataAccess.Client;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace project_esig
 {
@@ -26,75 +27,88 @@ namespace project_esig
         {
             if (!IsPostBack)
             {
-                CarregarSalarios();
-                AtualizarPaginacao();
+               
+                Task.Run(async () =>
+                {
+                    await CarregarSalariosAsync();
+                    AtualizarPaginacao();
+                }).Wait(); 
             }
         }
 
-        private void CarregarSalarios()
+        private async Task CarregarSalariosAsync()
         {
             string connectionString = ConfigurationManager.ConnectionStrings["DbConnection"].ConnectionString;
 
             using (OracleConnection connection = new OracleConnection(connectionString))
             {
-                string query = "SELECT \"PessoaID\", \"Nome\", \"Salario\" FROM \"pessoa_salario\" ORDER BY \"PessoaID\" ASC";
+                string countQuery = "SELECT COUNT(*) FROM \"pessoa_salario\"";
+                OracleCommand countCommand = new OracleCommand(countQuery, connection);
 
+                await connection.OpenAsync();
+                TotalRows = Convert.ToInt32(await countCommand.ExecuteScalarAsync());
+                if (TotalRows == 0)
+                {
+                    lblSemDados.Visible = true; 
+                    GridViewSalarios.Visible = false; 
+                    PagerRepeater.Visible = false;
+                    return;
+                }
+
+                lblSemDados.Visible = false; 
+                GridViewSalarios.Visible = true; 
+
+                // Carregar dados da página atual
+                string query = "SELECT \"PessoaID\", \"Nome\", \"Salario\" FROM \"pessoa_salario\" ORDER BY \"PessoaID\" ASC OFFSET :Offset ROWS FETCH NEXT :PageSize ROWS ONLY";
                 OracleCommand command = new OracleCommand(query, connection);
-                connection.Open();
+                command.Parameters.Add("Offset", OracleDbType.Int32).Value = GridViewSalarios.PageIndex * GridViewSalarios.PageSize;
+                command.Parameters.Add("PageSize", OracleDbType.Int32).Value = GridViewSalarios.PageSize;
 
                 OracleDataAdapter adapter = new OracleDataAdapter(command);
                 DataTable dt = new DataTable();
-                adapter.Fill(dt);
+                await Task.Run(() => adapter.Fill(dt));
 
-                TotalRows = dt.Rows.Count; // Armazenar o total de registros
-
-                // Paginação manual
-                int currentPage = GridViewSalarios.PageIndex + 1; // PageIndex começa em 0
-                int pageSize = GridViewSalarios.PageSize;
-
-                // Criar uma nova DataTable apenas com os itens da página atual
-                DataTable paginatedTable = dt.Clone();
-                int startRow = (currentPage - 1) * pageSize;
-                int endRow = Math.Min(startRow + pageSize, TotalRows);
-
-                for (int i = startRow; i < endRow; i++)
-                {
-                    paginatedTable.ImportRow(dt.Rows[i]);
-                }
-
-                GridViewSalarios.DataSource = paginatedTable;
+                GridViewSalarios.DataSource = dt;
                 GridViewSalarios.DataBind();
-
-                AtualizarPaginacao();
             }
         }
 
         private void AtualizarPaginacao()
         {
-            int totalPages = (int)Math.Ceiling((double)TotalRows / GridViewSalarios.PageSize);
+            
+            if (TotalRows == 0)
+            {
+                PagerRepeater.Visible = false; 
+                return;
+            }
+
+            PagerRepeater.Visible = true;
+
+            
+            int totalPages = Math.Max(1, (int)Math.Ceiling((double)TotalRows / GridViewSalarios.PageSize));
             int currentPage = GridViewSalarios.PageIndex + 1;
             DataTable dt = new DataTable();
             dt.Columns.Add("PageNumber");
             dt.Columns.Add("Text");
             dt.Columns.Add("CssClass");
 
-            // Adicionar sempre a primeira página
+            
             DataRow firstPage = dt.NewRow();
             firstPage["PageNumber"] = 1;
             firstPage["Text"] = "1";
             firstPage["CssClass"] = (currentPage == 1) ? "page-item active" : "page-item";
             dt.Rows.Add(firstPage);
 
-            // Adicionar reticências após a primeira página, se necessário
+           
             if (currentPage > 3)
             {
                 DataRow dots = dt.NewRow();
                 dots["Text"] = "...";
-                dots["CssClass"] = "page-item disabled"; // Não clicável
+                dots["CssClass"] = "page-item disabled";
                 dt.Rows.Add(dots);
             }
 
-            // Páginas adjacentes à atual (2 anteriores e 2 posteriores)
+            
             for (int i = Math.Max(2, currentPage - 1); i <= Math.Min(totalPages - 1, currentPage + 1); i++)
             {
                 DataRow page = dt.NewRow();
@@ -104,27 +118,27 @@ namespace project_esig
                 dt.Rows.Add(page);
             }
 
-            // Adicionar reticências antes da última página, se necessário
+            
             if (currentPage < totalPages - 2)
             {
                 DataRow dots = dt.NewRow();
                 dots["Text"] = "...";
-                dots["CssClass"] = "page-item disabled"; // Não clicável
+                dots["CssClass"] = "page-item disabled"; 
                 dt.Rows.Add(dots);
             }
 
-            // Adicionar sempre a última página
+            
             DataRow lastPage = dt.NewRow();
             lastPage["PageNumber"] = totalPages;
             lastPage["Text"] = totalPages.ToString();
             lastPage["CssClass"] = (currentPage == totalPages) ? "page-item active" : "page-item";
             dt.Rows.Add(lastPage);
 
-            // Definir o `Repeater` com o DataTable
+           
             PagerRepeater.DataSource = dt;
             PagerRepeater.DataBind();
 
-            // Habilitar ou desabilitar os botões de "Anterior" e "Próximo"
+            
             PreviousPageButton.Enabled = (currentPage > 1);
             NextPageButton.Enabled = (currentPage < totalPages);
         }
@@ -134,8 +148,11 @@ namespace project_esig
             if (GridViewSalarios.PageIndex > 0)
             {
                 GridViewSalarios.PageIndex--;
-                CarregarSalarios();
-                AtualizarPaginacao();
+                Task.Run(async () =>
+                {
+                    await CarregarSalariosAsync();
+                    AtualizarPaginacao();
+                }).Wait();
             }
         }
 
@@ -145,8 +162,11 @@ namespace project_esig
             if (GridViewSalarios.PageIndex < totalPages - 1)
             {
                 GridViewSalarios.PageIndex++;
-                CarregarSalarios();
-                AtualizarPaginacao();
+                Task.Run(async () =>
+                {
+                    await CarregarSalariosAsync();
+                    AtualizarPaginacao();
+                }).Wait();
             }
         }
 
@@ -155,12 +175,15 @@ namespace project_esig
             LinkButton linkButton = (LinkButton)sender;
             int pageNumber = Convert.ToInt32(linkButton.CommandArgument);
 
-            GridViewSalarios.PageIndex = pageNumber - 1; // PageIndex começa em 0
-            CarregarSalarios();
-            AtualizarPaginacao();
+            GridViewSalarios.PageIndex = pageNumber - 1; 
+            Task.Run(async () =>
+            {
+                await CarregarSalariosAsync();
+                AtualizarPaginacao();
+            }).Wait();
         }
 
-        protected void btnCalcularSalarios_Click(object sender, EventArgs e)
+        protected async void btnCalcularSalarios_Click(object sender, EventArgs e)
         {
             string connectionString = ConfigurationManager.ConnectionStrings["DbConnection"].ConnectionString;
 
@@ -168,35 +191,39 @@ namespace project_esig
             {
                 try
                 {
-                    conn.Open();
+                    await conn.OpenAsync(); // Abre a conexão de forma assíncrona
 
-                    // Ler o script da procedure do arquivo SQL
-                    string sqlScript = File.ReadAllText(Server.MapPath("~/SQLScripts/CreateProcedure_CalcularSalarios.sql"));
-
+                   
+                    string sqlScript;
+                    using (StreamReader reader = new StreamReader(Server.MapPath("~/SQLScripts/CreateProcedure_CalcularSalarios.sql")))
+                    {
+                        sqlScript = await reader.ReadToEndAsync(); 
+                    }
                     using (OracleCommand cmd = new OracleCommand(sqlScript, conn))
                     {
                         cmd.CommandType = CommandType.Text;
-                        cmd.ExecuteNonQuery(); // Executa o script SQL
+                        await cmd.ExecuteNonQueryAsync();
                     }
 
-                    // Agora chama a procedure criada para calcular os salários
+                    
                     using (OracleCommand cmd = new OracleCommand("CALCULARSALARIOS", conn))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.ExecuteNonQuery();
+                        await cmd.ExecuteNonQueryAsync();
                     }
 
-                    mensagemContainer.Attributes["class"] = "alert alert-success"; // Cor verde para sucesso
+                    mensagemContainer.Attributes["class"] = "alert alert-success"; 
                     lblMensagem.Text = "Salários calculados com sucesso!";
-                    mensagemContainer.Style["display"] = "block"; // Exibir a mensagem
+                    mensagemContainer.Style["display"] = "block"; 
 
-                    CarregarSalarios();
+                    await CarregarSalariosAsync();
+                    AtualizarPaginacao();
                 }
                 catch (Exception ex)
                 {
-                    mensagemContainer.Attributes["class"] = "alert alert-danger"; // Cor vermelha para erro
+                    mensagemContainer.Attributes["class"] = "alert alert-danger"; 
                     lblMensagem.Text = "Erro ao calcular os salários: " + ex.Message;
-                    mensagemContainer.Style["display"] = "block"; // Exibir a mensagem
+                    mensagemContainer.Style["display"] = "block"; 
                 }
             }
         }

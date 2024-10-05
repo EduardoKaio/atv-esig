@@ -3,12 +3,12 @@
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class InitialCreate : DbMigration
+    public partial class firstMigration : DbMigration
     {
         public override void Up()
         {
             CreateTable(
-                "dbo.Cargoes",
+                "C##KAIO.Cargo",
                 c => new
                     {
                         Id = c.Decimal(nullable: false, precision: 10, scale: 0, identity: true),
@@ -18,7 +18,7 @@
                 .PrimaryKey(t => t.Id);
             
             CreateTable(
-                "dbo.Pessoas",
+                "C##KAIO.Pessoa",
                 c => new
                     {
                         Id = c.Decimal(nullable: false, precision: 10, scale: 0, identity: true),
@@ -30,13 +30,13 @@
                         Pais = c.String(),
                         Usuario = c.String(),
                         Telefone = c.String(),
-                        Data_Nascimento = c.DateTime(nullable: false),
+                        Data_Nascimento = c.DateTime(),
                         CargoId = c.Decimal(nullable: false, precision: 10, scale: 0),
                     })
                 .PrimaryKey(t => t.Id);
             
             CreateTable(
-                "dbo.PessoaSalarios",
+                "C##KAIO.pessoa_salario",
                 c => new
                     {
                         PessoaID = c.Decimal(nullable: false, precision: 10, scale: 0, identity: true),
@@ -49,9 +49,9 @@
         
         public override void Down()
         {
-            DropTable("dbo.PessoaSalarios");
-            DropTable("dbo.Pessoas");
-            DropTable("dbo.Cargoes");
+            DropTable("C##KAIO.pessoa_salario");
+            DropTable("C##KAIO.Pessoa");
+            DropTable("C##KAIO.Cargo");
         }
     }
 }

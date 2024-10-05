@@ -10,7 +10,7 @@ namespace project_esig
         {
             if (!IsPostBack)
             {
-                // Verifica se o parâmetro "id" foi passado na URL
+
                 if (Request.QueryString["id"] != null)
                 {
                     int id = Convert.ToInt32(Request.QueryString["id"]);
@@ -19,7 +19,7 @@ namespace project_esig
             }
         }
 
-        // Método para carregar os dados da pessoa com base no ID
+
         private void CarregarPessoa(int id)
         {
             string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["DbConnection"].ConnectionString;
@@ -34,7 +34,7 @@ namespace project_esig
                 OracleDataReader reader = command.ExecuteReader();
                 if (reader.Read())
                 {
-                    // Preencher os campos do formulário com os dados da pessoa
+
                     txtId.Text = reader["Id"].ToString();
                     txtNome.Text = reader["Nome"].ToString();
                     txtCidade.Text = reader["Cidade"].ToString();
@@ -53,7 +53,7 @@ namespace project_esig
             }
         }
 
-        // Método para salvar as alterações feitas no formulário
+
         protected void btnSalvar_Click(object sender, EventArgs e)
         {
             string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["DbConnection"].ConnectionString;
@@ -71,7 +71,7 @@ namespace project_esig
                 command.Parameters.Add(new OracleParameter("usuario", txtUsuario.Text));
                 command.Parameters.Add(new OracleParameter("telefone", txtTelefone.Text));
 
-                string dataNascimento = Convert.ToDateTime(txtDataNascimento.Text).ToString("yyyy-MM-dd");
+                DateTime dataNascimento = DateTime.ParseExact(txtDataNascimento.Text, "yyyy-MM-dd", null);
                 command.Parameters.Add(new OracleParameter("dataNascimento", dataNascimento));
 
                 command.Parameters.Add(new OracleParameter("cargoId", Convert.ToInt32(ddlCargoId.SelectedValue)));
@@ -81,15 +81,12 @@ namespace project_esig
                 command.ExecuteNonQuery();
             }
 
-            // Redirecionar para a página de listagem após salvar
-
             Response.Redirect("PessoaListagem.aspx?mensagem=editada");
         }
 
-        // Método para cancelar a edição e retornar à página de listagem
         protected void btnCancelar_Click(object sender, EventArgs e)
         {
-            // Redirecionar sem salvar
+
             Response.Redirect("PessoaListagem.aspx");
         }
     }

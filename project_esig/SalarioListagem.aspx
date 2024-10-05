@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="SalarioListagem.aspx.cs" Inherits="project_esig.SalarioListagem" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" Async="true" CodeBehind="SalarioListagem.aspx.cs" Inherits="project_esig.SalarioListagem" %>
 <%@ Import Namespace="System.Data" %>
 <%@ Import Namespace="Oracle.ManagedDataAccess.Client" %>
 
@@ -24,6 +24,10 @@
                 <asp:Button ID="btnCalcularSalarios" runat="server" Text="Calcular Salários" CssClass="btn btn-success "
                 OnClick="btnCalcularSalarios_Click" class="mt-3" />
             </div>
+            <div class="mt-1 d-flex justify-content-center">
+                <asp:Label ID="lblSemDados" runat="server" CssClass="alert alert-warning"  Text="Não há dados registrados na tabela." Visible="false"></asp:Label>
+            </div>
+            
             <asp:GridView ID="GridViewSalarios" runat="server" AutoGenerateColumns="False" CssClass="table table-bordered table-hover mt-2 table-striped"
                          PageSize="10">
                 <Columns>
