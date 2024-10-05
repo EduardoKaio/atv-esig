@@ -48,11 +48,10 @@ A tabela `pessoa_salario` é a principal tabela de resultado deste projeto. Ela 
 2. Abra o projeto no **Visual Studio**.
 3. Atualize as configurações de conexão no arquivo `Web.config` para apontar para seu banco de dados Oracle.
 4. No **Gerenciador de Pacotes NuGet**, certifique-se de que todas as dependências necessárias estão instaladas.
-   - Se houver problemas com o Oracle ou Crystal Reports, pode ser necessário reinstalar os pacotes relevantes.
 5. Compile e execute o projeto no Visual Studio (usando `Ctrl + F5`).
 
 ### 4. Recalculando os Salários
-- Na página de listagem de salários, utilize o botão de **Recalcular Salários** para acionar o processamento assíncrono.
+- Na página de listagem de salários, utilize o botão de **Calcular Salários** para acionar o processamento assíncrono.
 - A tabela `pessoa_salario` será atualizada com base nas tabelas `pessoa` e `cargo`.
 
 ### 5. Gerenciamento de Pessoas
